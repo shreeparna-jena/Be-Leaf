@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { colors } from '../constants/theme';
+import { isValidName } from '../utils/validation';
 import Button from '../components/Button';
 import OLeaffyGuide from '../components/OLeaffyGuide';
 import oleaffyImg from '../assets/oleaffy.png';
@@ -10,21 +11,15 @@ export default function WelcomeScreen({ onNext, initialName }) {
   const [isShaking, setIsShaking] = useState(false);
 
   const handleStartJourney = () => {
-    const trimmedName = userName.trim();
-    if (!trimmedName) {
-      setNameError("Please enter a valid name.");
-      triggerShake();
-      return;
-    }
-    
-    if (!/^[A-Za-z\s]+$/.test(trimmedName)) {
-      setNameError("Names can only contain letters and spaces.");
+    const validation = isValidName(userName);
+    if (!validation.valid) {
+      setNameError(validation.error);
       triggerShake();
       return;
     }
     
     setNameError('');
-    onNext(trimmedName);
+    onNext(userName.trim());
   };
 
   const triggerShake = () => {

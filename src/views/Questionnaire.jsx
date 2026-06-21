@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { colors } from '../constants/theme';
 import { quizQuestions } from '../constants/quizData';
+import { calculateQuizScores } from '../utils/scoring';
 import Button from '../components/Button';
 import OLeaffyGuide from '../components/OLeaffyGuide';
 
@@ -32,39 +33,12 @@ export default function Questionnaire({ onComplete }) {
     if (currentStep < quizQuestions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Calculate final scores
-      let fpTotal = 0;
-      let seedTotal = 0;
-      const impactCounts = { Transportation: 0, Electricity: 0, Waste: 0 };
+      const results = calculateQuizScores(newAnswers);
       
-      newAnswers.forEach(ans => {
-        fpTotal += ans.fp;
-        seedTotal += ans.seed;
-        // tally footprint impact area weight (using fp value to weight the primary problem area)
-        if (impactCounts[ans.impact] !== undefined) {
-          impactCounts[ans.impact] += ans.fp; 
-        }
-      });
-
-      let highestImpactArea = 'None';
-      let maxFp = 0; // Require at least >0 impact to be considered highest
-      for (const [key, value] of Object.entries(impactCounts)) {
-        if (value > maxFp) {
-          maxFp = value;
-          highestImpactArea = key;
-        }
-      }
-
       console.log('--- Quiz Calculation Debug ---');
-      console.log('Impact Counts:', impactCounts);
-      console.log('Highest Impact Area:', highestImpactArea);
-      console.log('Max FP:', maxFp);
+      console.log('Results:', results);
 
-      onComplete({
-        footprintScore: fpTotal,
-        seedScore: seedTotal,
-        highestImpactArea
-      });
+      onComplete(results);
     }
   };
 

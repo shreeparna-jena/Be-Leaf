@@ -3,13 +3,21 @@ import { colors } from '../constants/theme';
 import SeedProgress from '../components/SeedProgress';
 import RecommendationCards from '../components/RecommendationCards';
 import GrowthLeaderboard from '../components/GrowthLeaderboard';
+import DailyTasks from '../components/DailyTasks';
+import ImprovementTracker from '../components/ImprovementTracker';
+import ProgressHistory from '../components/ProgressHistory';
+import Button from '../components/Button';
 
 export default function Dashboard({ 
   userName, 
   seedPoints, 
+  footprintScore,
+  previousScore,
   highestImpactArea, 
-  tasksCompleted, 
-  onTaskClick 
+  dailyTasks,
+  history,
+  onTaskClick,
+  onRetake
 }) {
   return (
     <main className="flex flex-col h-full max-w-md mx-auto space-y-6 animate-fade-in pb-8">
@@ -36,15 +44,35 @@ export default function Dashboard({
         </div>
       )}
 
-      {/* Daily Tasks / Recommendations */}
-      <RecommendationCards 
-        highestImpactArea={highestImpactArea} 
-        tasksCompleted={tasksCompleted}
+      {/* Improvement Tracker */}
+      {previousScore !== null && (
+        <ImprovementTracker previousScore={previousScore} currentScore={footprintScore} />
+      )}
+
+      {/* Daily Tasks */}
+      <DailyTasks 
+        highestImpactArea={highestImpactArea}
+        dailyTasksState={dailyTasks}
         onTaskClick={onTaskClick}
       />
 
+      {/* Personalized Recommendations */}
+      <RecommendationCards 
+        highestImpactArea={highestImpactArea} 
+      />
+
+      {/* Progress History */}
+      <ProgressHistory history={history} />
+
       {/* Leaderboard */}
       <GrowthLeaderboard userName={userName} seedPoints={seedPoints} />
+
+      {/* Retake Assessment */}
+      <div className="pt-4">
+        <Button onClick={onRetake} className="w-full text-lg shadow-sm" testId="retake-btn">
+          Retake Assessment 🔄
+        </Button>
+      </div>
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { colors } from '../constants/theme';
+import { getGrowthStage } from '../utils/progress';
 
 export default function SeedProgress({ seedPoints }) {
   let stageName = '';
@@ -8,25 +9,27 @@ export default function SeedProgress({ seedPoints }) {
   let maxPts = 49;
   let nextGoal = 50;
 
-  if (seedPoints >= 200) {
+  const currentStage = getGrowthStage(seedPoints);
+
+  if (currentStage === 'Garden') {
     stageName = 'Garden';
     emoji = '🏡';
     minPts = 200;
     maxPts = 200; // maxed out calculation
     nextGoal = null;
-  } else if (seedPoints >= 150) {
+  } else if (currentStage === 'Tree') {
     stageName = 'Tree';
     emoji = '🌳';
     minPts = 150;
     maxPts = 199;
     nextGoal = 200;
-  } else if (seedPoints >= 100) {
+  } else if (currentStage === 'Plant') {
     stageName = 'Plant';
     emoji = '🪴';
     minPts = 100;
     maxPts = 149;
     nextGoal = 150;
-  } else if (seedPoints >= 50) {
+  } else if (currentStage === 'Sapling') {
     stageName = 'Sapling';
     emoji = '🌿';
     minPts = 50;
