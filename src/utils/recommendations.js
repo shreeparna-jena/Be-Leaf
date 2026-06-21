@@ -1,5 +1,26 @@
+import { IMPACT_AREAS } from '../constants/config';
+
+/**
+ * @typedef {Object} DailyTask
+ * @property {string} id - The unique identifier for the task
+ * @property {string} text - The actionable text description of the task
+ * @property {number} pts - The seed points awarded for completing the task
+ */
+
+/**
+ * @typedef {Object} Recommendation
+ * @property {string} message - A personalized message based on the highest impact area
+ * @property {DailyTask[]} tasks - A list of recommended daily tasks
+ */
+
+/**
+ * Generates personalized recommendations and daily tasks based on the user's highest footprint impact area.
+ * 
+ * @param {string} highestImpactArea - The category with the highest footprint impact
+ * @returns {Recommendation} The generated recommendation message and tasks
+ */
 export function getRecommendations(highestImpactArea) {
-  if (highestImpactArea === 'Transportation') {
+  if (highestImpactArea === IMPACT_AREAS.TRANSPORTATION) {
     return {
       message: "Transportation contributes most to your footprint. Consider replacing one weekly car trip with public transport.",
       tasks: [
@@ -8,7 +29,7 @@ export function getRecommendations(highestImpactArea) {
         { id: 't2', text: "Combined multiple errands into one trip", pts: 15 }
       ]
     };
-  } else if (highestImpactArea === 'Electricity') {
+  } else if (highestImpactArea === IMPACT_AREAS.ELECTRICITY) {
     return {
       message: "Reducing AC usage by one hour per day could help lower your footprint and earn more Seed Points.",
       tasks: [
@@ -17,7 +38,7 @@ export function getRecommendations(highestImpactArea) {
         { id: 'e2', text: "Unplugged unused devices", pts: 15 }
       ]
     };
-  } else if (highestImpactArea === 'None') {
+  } else if (highestImpactArea === IMPACT_AREAS.NONE) {
     return {
       message: "Your footprint is incredibly low across the board! Keep up your amazing green habits to maintain your Garden.",
       tasks: [

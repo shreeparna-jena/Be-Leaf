@@ -1,5 +1,6 @@
 import React from 'react';
 import { colors } from '../constants/theme';
+import { IMPACT_AREAS } from '../constants/config';
 import SeedProgress from '../components/SeedProgress';
 import RecommendationCards from '../components/RecommendationCards';
 import GrowthLeaderboard from '../components/GrowthLeaderboard';
@@ -34,12 +35,12 @@ export default function Dashboard({
       <SeedProgress seedPoints={seedPoints} />
 
       {/* Highest Impact Area Explanation */}
-      {highestImpactArea !== 'None' && (
+      {highestImpactArea !== IMPACT_AREAS.NONE && (
         <div className="bg-[#A8DADC]/10 p-4 rounded-xl border border-[#A8DADC]/30 text-center">
           <p className={`font-medium ${colors.textForest} text-sm`}>
-            {highestImpactArea === 'Electricity' && "Electricity usage contributed the most to your footprint."}
-            {highestImpactArea === 'Transportation' && "Transportation contributed the most to your footprint."}
-            {highestImpactArea === 'Waste' && "Waste-related habits contributed the most to your footprint."}
+            {highestImpactArea === IMPACT_AREAS.ELECTRICITY && "Electricity usage contributed the most to your footprint."}
+            {highestImpactArea === IMPACT_AREAS.TRANSPORTATION && "Transportation contributed the most to your footprint."}
+            {highestImpactArea === IMPACT_AREAS.WASTE && "Waste-related habits contributed the most to your footprint."}
           </p>
         </div>
       )}

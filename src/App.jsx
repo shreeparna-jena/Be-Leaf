@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { loadUserData, saveUserData, addHistoryEntry } from './utils/storage';
+import { useUserData } from './hooks/useUserData';
+import { VIEWS } from './constants/config';
 import { colors } from './constants/theme';
 import WelcomeScreen from './views/WelcomeScreen';
 import CarbonExplainer from './views/CarbonExplainer';
@@ -8,103 +9,50 @@ import ResultsSummary from './views/ResultsSummary';
 import Dashboard from './views/Dashboard';
 
 export default function BeLeafApp() {
-  // Global State
-  const [currentView, setCurrentView] = useState('welcome');
+  const [currentView, setCurrentView] = useState(VIEWS.WELCOME);
   
-  // User Data State
-  const [userName, setUserName] = useState('');
-  const [seedPoints, setSeedPoints] = useState(0);
-  const [footprintScore, setFootprintScore] = useState(0);
-  const [previousScore, setPreviousScore] = useState(null);
-  const [highestImpactArea, setHighestImpactArea] = useState('');
-  const [dailyTasks, setDailyTasks] = useState({
-    lastResetDate: '',
-    completed: [false, false, false]
-  });
-  const [history, setHistory] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const {
+    userName,
+    setUserName,
+    seedPoints,
+    footprintScore,
+    previousScore,
+    highestImpactArea,
+    dailyTasks,
+    history,
+    isLoaded,
+    handleQuizComplete,
+    handleTaskClick
+  } = useUserData();
 
+  // Redirect to dashboard if user has history data on load
   useEffect(() => {
-    const data = loadUserData();
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (data) {
-      setUserName(data.userName || '');
-      setSeedPoints(data.seedPoints || 0);
-      setFootprintScore(data.footprintScore || 0);
-      setPreviousScore(data.previousScore !== undefined ? data.previousScore : null);
-      setHighestImpactArea(data.highestImpactArea || '');
-      setHistory(data.history || []);
-      
-      if (data.dailyTasks && data.dailyTasks.lastResetDate === today) {
-        setDailyTasks(data.dailyTasks);
-      } else {
-        setDailyTasks({ lastResetDate: today, completed: [false, false, false] });
-      }
-
-      if (data.userName && data.history && data.history.length > 0) {
-        setCurrentView('dashboard');
-      }
-    } else {
-      setDailyTasks({ lastResetDate: today, completed: [false, false, false] });
+    if (isLoaded && userName && history && history.length > 0 && currentView === VIEWS.WELCOME) {
+      setCurrentView(VIEWS.DASHBOARD);
     }
-    setIsLoaded(true);
-  }, []);
+  }, [isLoaded, userName, history, currentView]);
 
-  useEffect(() => {
-    if (isLoaded && userName) {
-      saveUserData({
-        userName,
-        seedPoints,
-        footprintScore,
-        previousScore,
-        highestImpactArea,
-        dailyTasks,
-        history
-      });
-    }
-  }, [userName, seedPoints, footprintScore, previousScore, highestImpactArea, dailyTasks, history, isLoaded]);
-
-  // Handlers
+  // View Navigation Handlers
   const handleWelcomeNext = (name) => {
     setUserName(name);
-    setCurrentView('explainer');
+    setCurrentView(VIEWS.EXPLAINER);
   };
 
   const handleExplainerNext = () => {
-    setCurrentView('quiz');
+    setCurrentView(VIEWS.QUIZ);
   };
 
-  const handleQuizComplete = (results) => {
-    if (history.length > 0) {
-      setPreviousScore(footprintScore);
-    }
-
-    setFootprintScore(results.footprintScore);
-    setSeedPoints(prev => prev + results.seedScore);
-    setHighestImpactArea(results.highestImpactArea);
-    
-    const newHistory = addHistoryEntry(history, results.footprintScore);
-    setHistory(newHistory);
-    
-    setCurrentView('results');
+  const onQuizComplete = (results) => {
+    handleQuizComplete(results);
+    setCurrentView(VIEWS.RESULTS);
   };
 
   const handleResultsContinue = () => {
-    setCurrentView('dashboard');
+    setCurrentView(VIEWS.DASHBOARD);
   };
 
   const handleRetakeAssessment = () => {
-    setCurrentView('quiz');
-  };
-
-  const handleTaskClick = (index, points) => {
-    if (!dailyTasks.completed[index]) {
-      const newCompleted = [...dailyTasks.completed];
-      newCompleted[index] = true;
-      setDailyTasks(prev => ({ ...prev, completed: newCompleted }));
-      setSeedPoints(prev => prev + points);
-    }
+    setCurrentView(VIEWS.QUIZ);
   };
 
   return (
@@ -135,26 +83,26 @@ export default function BeLeafApp() {
       {/* Content wrapper to ensure it sits above the background glow */}
       <div className="relative z-10 h-full">
       
-      {currentView === 'welcome' && (
+      {currentView === VIEWS.WELCOME && (
         <WelcomeScreen 
           initialName={userName} 
           onNext={handleWelcomeNext} 
         />
       )}
       
-      {currentView === 'explainer' && (
+      {currentView === VIEWS.EXPLAINER && (
         <CarbonExplainer 
           onNext={handleExplainerNext} 
         />
       )}
       
-      {currentView === 'quiz' && (
+      {currentView === VIEWS.QUIZ && (
         <Questionnaire 
-          onComplete={handleQuizComplete} 
+          onComplete={onQuizComplete} 
         />
       )}
       
-      {currentView === 'results' && (
+      {currentView === VIEWS.RESULTS && (
         <ResultsSummary 
           footprintScore={footprintScore}
           seedScore={seedPoints}
@@ -163,7 +111,7 @@ export default function BeLeafApp() {
         />
       )}
 
-      {currentView === 'dashboard' && (
+      {currentView === VIEWS.DASHBOARD && (
         <Dashboard 
           userName={userName}
           seedPoints={seedPoints}
